@@ -1,5 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
+module Lib where
+
 import Control.Lens
 import Data.List (foldl')
 import Data.Tuple (swap)
@@ -37,6 +39,7 @@ move tower (x,y) =
 execMoves :: Tower -> [Move] -> Tower
 execMoves = foldl' move
 
+-- no real way to make it faster afaik
 toMoves :: MoveP -> [Move]
 toMoves (MP [] n _) = n
 toMoves (MP r n a) = r ++ [fst a] ++ n ++ [snd a] ++ r 
@@ -46,39 +49,23 @@ toMoves (MP r n a) = r ++ [fst a] ++ n ++ [snd a] ++ r
 
 -- it's not as magical as it looks.
 buildMoves :: Int -> [Move] 
-buildMoves 1 = [(1,3)]
-buildMoves 2 = [(1,2),(1,3),(2,3)]
-buildMoves 3 = [(1,3),(1,2),(3,2),(1,3),(2,1),(2,3),(1,3)]
-buildMoves n = toMoves $ fst (go n ima) --snd (go n ima) to see the resulting map
+buildMoves n = toMoves $ fst (go n ima)
   where
     arrws = ((1,2),(3,2))
     ima = IM.fromList [
-        (1, MP [] [(1,3)] ((1,2),(3,2))), 
-        (2, MP [] [(1,2),(1,3),(2,3)] ((1,2),(3,2))),
-        (3, MP [(1,3)] [(1,3)] ((1,2),(3,2)))
+        (1, MP [] [(1,3)] arrws),
+        (2, MP [] [(1,2),(1,3),(2,3)] arrws),
+        (3, MP [(1,3)] [] arrws)
       ]
     go i ima =
       case ima IM.!? i of
         Just x -> (x, ima)
         Nothing ->
-          if i /= 4 then
-            let (n,ima') = (go (i-1) ima) in
-            if i /= 5 then -- N
-              let (r,ima'') = (go (i-2) ima')
-                  this = MP (toMoves r) (fmap mirror $ _re n) arrws
-                  mp = IM.insert i this ima''
-              in (this, mp)
-            else -- 5
-              let r = [(1,3),(1,2),(3,2),(1,3),(2,1),(2,3),(1,3)]
-                  this = MP r (fmap mirror $ _re n) arrws
-                  mp =  IM.insert i this ima'
-              in (this, mp)   
-          else -- 4
-            let n = [(3,1)]
-                (r,ima') = (go (i-2) ima)
-                this = MP (toMoves r) n arrws
-                mp =  IM.insert i this ima'
-            in (this, mp)
+          let (n,ima')  = (go (i-1) ima)
+              (r,ima'') = (go (i-2) ima')
+              this = MP (toMoves r) (fmap mirror $ _re n) arrws
+              mp = IM.insert i this ima''
+          in  (this, mp) 
 
 -- primarily to test if the moves are correct
 solveTower :: Int -> Tower
