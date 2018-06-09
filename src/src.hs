@@ -46,6 +46,9 @@ toMoves (MP r n a) = r ++ [fst a] ++ n ++ [snd a] ++ r
 
 -- it's not as magical as it looks.
 buildMoves :: Int -> [Move] 
+buildMoves 1 = [(1,3)]
+buildMoves 2 = [(1,2),(1,3),(2,3)]
+buildMoves 3 = [(1,3),(1,2),(3,2),(1,3),(2,1),(2,3),(1,3)]
 buildMoves n = toMoves $ fst (go n ima) --snd (go n ima) to see the resulting map
   where
     arrws = ((1,2),(3,2))
@@ -58,19 +61,19 @@ buildMoves n = toMoves $ fst (go n ima) --snd (go n ima) to see the resulting ma
       case ima IM.!? i of
         Just x -> (x, ima)
         Nothing ->
-          if (i-1) /= 3 then
+          if i /= 4 then
             let (n,ima') = (go (i-1) ima) in
-            if (i-2) /= 3 then
+            if i /= 5 then -- N
               let (r,ima'') = (go (i-2) ima')
                   this = MP (toMoves r) (fmap mirror $ _re n) arrws
                   mp = IM.insert i this ima''
               in (this, mp)
-            else
+            else -- 5
               let r = [(1,3),(1,2),(3,2),(1,3),(2,1),(2,3),(1,3)]
                   this = MP r (fmap mirror $ _re n) arrws
                   mp =  IM.insert i this ima'
               in (this, mp)   
-          else
+          else -- 4
             let n = [(3,1)]
                 (r,ima') = (go (i-2) ima)
                 this = MP (toMoves r) n arrws
