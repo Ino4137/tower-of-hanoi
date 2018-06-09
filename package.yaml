@@ -1,0 +1,22 @@
+name:                tower-of-hanoi
+version:             0.1.0.0
+github:              "Welperooni/tower-of-hanoi"
+license:             BSD3
+author:              "Welperooni"
+maintainer:          "welperooni@gmail.com"
+copyright:           "2018 Welperooni"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+description: Please see the README on GitHub at <https://github.com/Welperooni/tower-of-hanoi#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+  dependencies:
+    - lens
+    - containers
