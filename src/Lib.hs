@@ -42,8 +42,8 @@ execMoves = foldl' move
 -- no real way to make it faster afaik
 toMoves :: MoveP -> [Move]
 toMoves (MP [] n _) = n
-toMoves (MP r n a) = r ++ [fst a] ++ n ++ [snd a] ++ r 
-  ++ [(arrowBT . fst $ a)] ++ n ++ [(arrowBT . snd $ a)] ++ r
+toMoves (MP r n a) = r ++ (fst a : n) ++ (snd a : r)
+  ++ ((arrowBT . fst $ a) : n) ++ ((arrowBT . snd $ a): r)
     where
       arrowBT = swap 
 
